@@ -1,19 +1,33 @@
-// Import necessary modules
-import { NextApiRequest, NextApiResponse } from "next";
+"use client";
+import { useEffect, useState } from "react";
 
-// Define the API route function
-export default async function myRoute(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  // Access client's IP address using req.socket.remoteAddress
-  const detectedIp = req.socket.remoteAddress;
+function HomePage() {
+  const [ipAddress, setIpAddress] = useState<string | null>(null);
 
-  // Now you can use the detectedIp as needed
-  console.log("Client IP Address:", detectedIp);
+  useEffect(() => {
+    console.log("Fetching IP address...");
+    fetch("/api/getIP")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Received data:", data);
+        setIpAddress(data.ip);
+      })
+      .catch((error) => {
+        console.error("Error fetching IP address:", error);
+      });
+  }, []);
 
-  // Continue with the rest of your code
-
-  // Send a response if needed
-  res.status(200).json({ ip: detectedIp });
+  return (
+    <div>
+      <h1>Client IP Address:</h1>
+      {ipAddress ? <p>{ipAddress}</p> : <p>Loading...</p>}
+    </div>
+  );
 }
+
+export default HomePage;
